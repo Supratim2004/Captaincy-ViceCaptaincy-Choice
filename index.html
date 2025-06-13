@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" class="transition duration-300">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Simulation Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-indigo-100 text-gray-800 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100 min-h-screen p-6 transition duration-300">
+
+  <div class="max-w-6xl mx-auto bg-white dark:bg-gray-900 shadow-2xl rounded-2xl p-8 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <h2 class="text-4xl font-bold text-center text-indigo-600 dark:text-indigo-300">Expert Simulation Dashboard</h2>
+      <button id="darkToggle" class="w-14 h-8 bg-gray-300 dark:bg-gray-700 rounded-full p-1 flex items-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        <div id="toggleIcon" class="bg-white dark:bg-gray-800 w-6 h-6 rounded-full shadow-md transform transition-all duration-300 flex items-center justify-center text-sm">
+          <span id="iconSymbol">☀️</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Dropdown Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="font-semibold block mb-1" for="experts">Number of Experts:</label>
+        <select id="experts" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-semibold block mb-1" for="correlation">Correlation Between Teams:</label>
+        <select id="correlation" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <option value="0.33">0.33</option>
+          <option value="0.5">0.5</option>
+          <option value="0.67">0.67</option>
+        </select>
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="font-semibold block mb-1" for="plot-type">Choose Plot Type:</label>
+        <select id="plot-type" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <option value="">--Select--</option>
+          <option value="fstat">F statistic comparisons</option>
+          <option value="3d">3D Plots</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- F-stat Section -->
+    <div id="fstat-options" class="hidden">
+      <label class="font-semibold block mt-4 mb-1" for="fstat-type">Compare Across:</label>
+      <select id="fstat-type" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+        <option value="beta">Error Bounds (beta), Tau = 0.2</option>
+        <option value="tau">Taus, Beta = 0.005</option>
+      </select>
+    </div>
+
+    <!-- 3D Plot Section -->
+    <div id="3d-options" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="font-semibold block mb-1" for="tau">Tau:</label>
+        <select id="tau" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <option value="0.1">0.1</option>
+          <option value="0.2">0.2</option>
+          <option value="0.3">0.3</option>
+          <option value="0.4">0.4</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-semibold block mb-1" for="error">Error Bound:</label>
+        <select id="error" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <option value="0.002">0.002</option>
+          <option value="0.005">0.005</option>
+          <option value="0.008">0.008</option>
+          <option value="0.011">0.011</option>
+        </select>
+      </div>
+
+      <!-- Reset Button -->
+      <div class="sm:col-span-2 text-right">
+        <button id="resetTauError" class="mt-2 px-4 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">
+          Reset Tau & Error Bound
+        </button>
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="font-semibold block mb-1" for="configdirichlet">Dirichlet Parameter Configuration:</label>
+        <select id="configdirichlet" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <option value="IID">IID</option>
+          <option value="Non IID with_Difference across significant players">Non IID with_Difference across significant players</option>
+          <option value="Non IID with Difference across experts">Non IID with Difference across experts</option>
+          <option value="Non IID with Difference across significant players and experts">Non IID with Difference across significant players and experts</option>
+        </select>
+      </div>
+
+      <div class="sm:col-span-2">
+        <label class="font-semibold block mb-1" for="Expert_config">Expert Configuration:</label>
+        <select id="Expert_config" class="w-full p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <option value="Equi-mean_Equivariance_AllTeams">Equi-mean, Equivariance</option>
+          <option value="Unequal-mean_Equivariance_AllTeams">Unequal-mean, Equivariance</option>
+          <option value="Equi-mean_Unequal-std_AllTeams">Equi-mean, Unequal-std</option>
+          <option value="Unequal-mean_Unequal-std_AllTeams">Unequal-mean, Unequal-std</option>
+          <option value="AllConfigurations_AllTeams">All configurations</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Plot Container -->
+    <div id="plot-container" class="mt-8 rounded-lg overflow-hidden shadow-inner bg-gray-100 dark:bg-gray-800 p-4 min-h-[800px] border dark:border-gray-700">
+      <p class="text-gray-500 dark:text-gray-400 italic text-center">Select options above to display the plot</p>
+    </div>
+
+    <!-- Download Button -->
+    <div class="text-center pt-8">
+      <button id="downloadBtn" class="mt-4 px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-all duration-200">
+        Download Plot as HTML
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const plotTypeSelect = document.getElementById('plot-type');
+    const fstatOptions = document.getElementById('fstat-options');
+    const fstatTypeSelect = document.getElementById('fstat-type');
+    const options3D = document.getElementById('3d-options');
+    const plotContainer = document.getElementById('plot-container');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const tauSelect = document.getElementById('tau');
+    const errorSelect = document.getElementById('error');
+
+    const tauToErrorMap = {
+      "0.1": [ "0.005"],
+      "0.2": ["0.002","0.005", "0.008", "0.011"],
+      "0.3": ["0.005"],
+      "0.4": ["0.005"]
+    };
+
+    const errorToTauMap = {
+      "0.002": ["0.2"],
+      "0.005": ["0.1", "0.2", "0.3", "0.4"],
+      "0.008": ["0.2"],
+      "0.011": ["0.2"]
+    };
+
+    function updateTauErrorLinkage() {
+      const tauVal = tauSelect.value;
+      const errorVal = errorSelect.value;
+
+      Array.from(errorSelect.options).forEach(opt => {
+        opt.disabled = !tauToErrorMap[tauVal].includes(opt.value);
+      });
+
+      Array.from(tauSelect.options).forEach(opt => {
+        opt.disabled = !errorToTauMap[errorVal].includes(opt.value);
+      });
+
+      displayPlot();
+    }
+
+    function updateVisibility() {
+      fstatOptions.classList.add("hidden");
+      options3D.classList.add("hidden");
+      plotContainer.innerHTML = `<p class="text-gray-500 dark:text-gray-400 italic text-center">Select options above to display the plot</p>`;
+
+      if (plotTypeSelect.value === 'fstat') {
+        fstatOptions.classList.remove("hidden");
+      } else if (plotTypeSelect.value === '3d') {
+        options3D.classList.remove("hidden");
+      }
+
+      displayPlot();
+    }
+
+    function displayPlot() {
+      const experts = document.getElementById('experts').value;
+      const corr = document.getElementById('correlation').value;
+      const plotType = plotTypeSelect.value;
+      let path = "";
+
+      if (plotType === 'fstat') {
+        const fstatType = fstatTypeSelect.value;
+        path = `Captaincy_ViceCaptaincy_Abbreviated/Expert_${experts}/${corr}/F_statistic_Variation_with_${fstatType}.html`;
+      } else if (plotType === '3d') {
+        const tau = tauSelect.value;
+        const error = errorSelect.value;
+        const configdirichlet = document.getElementById('configdirichlet').value;
+        const Expert_config = document.getElementById('Expert_config').value;
+        path = `Captaincy_ViceCaptaincy_Abbreviated/Expert_${experts}/${corr}/Tau=${tau}_ErrorBound=${error}/${configdirichlet}/Plots/${Expert_config}.html`;
+      }
+
+      if (path) {
+        plotContainer.innerHTML = `<iframe id="plot-frame" src="${path}" class="w-full h-[750px] rounded-lg border dark:border-gray-600" frameborder="0"></iframe>`;
+      }
+    }
+
+    // Event Listeners
+    plotTypeSelect.addEventListener("change", updateVisibility);
+    fstatTypeSelect.addEventListener("change", displayPlot);
+    document.getElementById("experts").addEventListener("change", displayPlot);
+    document.getElementById("correlation").addEventListener("change", displayPlot);
+    document.getElementById("configdirichlet").addEventListener("change", displayPlot);
+    document.getElementById("Expert_config").addEventListener("change", displayPlot);
+    tauSelect.addEventListener("change", updateTauErrorLinkage);
+    errorSelect.addEventListener("change", updateTauErrorLinkage);
+
+    // Reset Button Handler
+    document.getElementById("resetTauError").addEventListener("click", () => {
+      tauSelect.value = "0.2";
+      errorSelect.value = "0.005";
+      updateTauErrorLinkage();
+    });
+
+    // Download Button
+    downloadBtn.addEventListener("click", () => {
+      const iframe = document.getElementById("plot-frame");
+      const src = iframe?.src;
+      if (src) {
+        const a = document.createElement("a");
+        a.href = src;
+        a.download = "plot.html";
+        a.click();
+      } else {
+        alert("Please select a plot to download.");
+      }
+    });
+
+    // Dark Mode Toggle
+    const htmlEl = document.documentElement;
+    const toggle = document.getElementById("darkToggle");
+    const toggleIcon = document.getElementById("toggleIcon");
+    const iconSymbol = document.getElementById("iconSymbol");
+
+    let darkMode = false;
+
+    function setTheme(isDark) {
+      darkMode = isDark;
+      if (isDark) {
+        htmlEl.classList.add("dark");
+        iconSymbol.innerHTML = "🌙";
+        toggleIcon.style.transform = "translateX(24px)";
+      } else {
+        htmlEl.classList.remove("dark");
+        iconSymbol.innerHTML = "☀️";
+        toggleIcon.style.transform = "translateX(0px)";
+      }
+    }
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme(true);
+    } else {
+      setTheme(false);
+    }
+
+    toggle.addEventListener("click", () => setTheme(!darkMode));
+  </script>
+</body>
+</html>
