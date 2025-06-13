@@ -261,6 +261,12 @@
     }
 
     toggle.addEventListener("click", () => setTheme(!darkMode));
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("tau").value = "0.2";
+      document.getElementById("error").value = "0.005";
+      updateTauErrorLinkage();
+      displayPlot();
+    });
   </script>
 </body>
 </html>
